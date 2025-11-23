@@ -1,1 +1,1 @@
-# Sinuca
+# Trabalho de AED1 com a biblioteca graphics.py
