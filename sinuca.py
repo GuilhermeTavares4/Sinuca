@@ -3,55 +3,7 @@ import time
 import math
 import radio as sd
 import random
-import generate_balls
-
-
-class Ball: # REMOVER?  ==========================
-    def __init__(self, element): #number e number_color são instâncias de Text e Circle gf
-        self.element = element
-        self.radius = element.getRadius()
-
-        # self.color = color
-        # self.number = number
-        # self.number_color = number_color
-        
-        self.velocity_x = 0
-        self.velocity_y = 0
-        self.drag = 0.65
-        self.acc_x = 0
-        self.acc_y = 0
-
-    def move(self):
-        self.element.move(self.velocity_x, self.velocity_y)
-        if abs(self.velocity_x) <= 0.1 and abs(self.velocity_y) <= 0.1:
-            self.velocity_x = 0
-            self.velocity_y = 0
-
-        self.acc_x = -self.velocity_x * self.drag
-        self.acc_y = -self.velocity_y * self.drag
-        self.velocity_x += self.acc_x * 0.01
-        self.velocity_y += self.acc_y * 0.01
-
-    def getX(self):
-        return self.element.getCenter().getX()
-        
-    def getY(self):
-        return self.element.getCenter().getY()
-
-    def getRadius(self):
-        return self.radius
-
-    def setVelocity_x(self, velocity):
-        self.velocity_x = velocity
-
-    def setVelocity_y(self, velocity):
-        self.velocity_y = velocity
-
-    def getVelocity_x(self):
-        return self.velocity_x
-
-    def getVelocity_y(self):
-        return self.velocity_y
+from generate_balls import *
 
 
 class Wall:
@@ -127,9 +79,9 @@ class Cue:
         distance = math.sqrt(dx * dx + dy * dy)
         nx = dx / distance
         ny = dy / distance
-        velocity = distance / 20
-        if velocity > 15:
-            velocity = 15
+        velocity = distance / 10
+        if velocity > 23:
+            velocity = 23
         while distance > target.getRadius():
             self.element.move(nx * velocity * -1, ny * velocity * -1)
             dx += nx * velocity * -1
@@ -139,6 +91,8 @@ class Cue:
         target.setVelocity_x(nx * velocity * -1)
         target.setVelocity_y(ny * velocity * -1)
 
+    def undraw(self):
+        self.element.undraw()
 
 
         
@@ -146,11 +100,10 @@ def BallCollision(ball1, ball2):
     dx = ball1.getX() - ball2.getX()
     dy = ball1.getY() - ball2.getY()
     distance = math.sqrt(dx * dx  + dy * dy)
-    nx = dx / distance
-    ny = dy / distance
-
     #verifica se as bolas estão colidindo
-    if distance <= (ball1.getRadius() + ball2.getRadius()):
+    if distance < (ball1.getRadius() + ball2.getRadius()):
+        nx = dx / distance
+        ny = dy / distance
         displacement = (distance - ball1.getRadius() - ball2.getRadius()) / 2
 
         #impede que uma bola sobreponha a outra
@@ -162,11 +115,11 @@ def BallCollision(ball1, ball2):
 
         dot_product = (rel_vx * nx) + (rel_vy * ny)
 
-        ball1.setVelocity_x(ball1.getVelocity_x() - dot_product * nx)
-        ball1.setVelocity_y(ball1.getVelocity_y() - dot_product * ny)        
+        ball1.setVelocity_x(ball1.getVelocity_x() * 0.9 - dot_product * nx)
+        ball1.setVelocity_y(ball1.getVelocity_y()* 0.9 - dot_product * ny)        
         
-        ball2.setVelocity_x(ball2.getVelocity_x() + dot_product * nx)
-        ball2.setVelocity_y(ball2.getVelocity_y() + dot_product * ny)
+        ball2.setVelocity_x(ball2.getVelocity_x()* 0.9 + dot_product * nx)
+        ball2.setVelocity_y(ball2.getVelocity_y()* 0.9 + dot_product * ny)
 
 
 def Ball_Wall_Collision(ball, wall):
@@ -206,7 +159,7 @@ def generate_table():
     top_walls_height = 100
     wall_thickness = 35
     wall_length = 300
-    gap = 50
+    gap = 60
     corner_gap = 20
     
     walls_info = [
@@ -280,7 +233,7 @@ def generate_table():
 
     #agora gera as regiões dos buracos da mesa (invisíveis)
     small_radius = gap * 0.5
-    radius = wall_thickness
+    radius = gap * 0.7
     holes_info = [
         {
             #buraco cima-esquerda
@@ -321,27 +274,31 @@ def generate_table():
         hole_element.draw(win)
         #holes.append(wall_obj)
 
-    
-# def generate_balls(radius):
-#     colors = ["Yellow", "Blue", "Red", "Purple", "Orange", "Green", "Brown"] # Pensar na black
-#     cx = 100 #Valor arbitrário
-#     cy = 100 #Valor arbitrário
 
-#     # (self, element, color, number, number_color)
+def use_cue():
+    pos = None
+    while True:
+        click = win.checkMouse()
+        if click:
+            pos = gf.Point(click.getX(), click.getY())
+            cue.move_cue_to_mouse_pos(pos)
+            dy = pos.getY() - table_balls[0].getY()
+            dx = pos.getX() - table_balls[0].getX()
+            angle_rad = math.atan2(dy, dx)
+            cue.rotate_polygon_to_angle(angle_rad)
 
-#     table_balls.append(gf.Circle(100, 100), radius) # Bola branca
+        key = win.checkKey()
+        if pos and key == 'space':
+            break
+    cue.move_towards_target(table_balls[0])
+    cue.undraw()
 
-#     color_picker = 0
-#     for i in range(1, 15):
-        
-#         if color_picker < 7:
-#             table_balls.append(Ball(gf.Circle(gf.Point(cx, cy), radius), colors[color_picker], i, ))
-#             color_picker += 1
-#         else: # No caso de ser a bola 8
 
-#         # Por agora só forma uma linha em diagonal
-#         cx += radius
-#         cy += radius
+def balls_still_moving():
+    for ball in table_balls:
+        if ball.getVelocity_x() != 0 or ball.getVelocity_y() != 0:
+            return True            
+    return False
         
 
 
@@ -361,39 +318,27 @@ cue = Cue(cue_element)
 
 generate_table()
 
-b1 = gf.Circle(gf.Point(400,298), 12)
-b1.draw(win)
-b1.setFill('white')
-ball1 = Ball(b1)
-
-b2 = gf.Circle(gf.Point(600,305), 12)
-b2.draw(win)
-ball2 = Ball(b2)
-
-a = win.getMouse()
-cue.move_cue_to_mouse_pos(gf.Point(a.getX(), a.getY()))
-
-dy = a.getY() - ball1.getY()
-dx = a.getX() - ball1.getX()
-
-angle_rad = math.atan2(dy, dx)
-cue.rotate_polygon_to_angle(angle_rad)
-key = win.getKey()
-if key == 'space':
-    cue.move_towards_target(ball1)
-#loop em que ocorre a física
-
+table_balls = generate_balls(350, [600, 325], 15, win)
 while True:
-    ball1.move()
-    ball2.move()
-    BallCollision(ball1, ball2)
-    for wall in walls:
-        Ball_Wall_Collision(ball1, wall)
-        Ball_Wall_Collision(ball2, wall)
+    #aguarda ate que o jogador mova o taco
+    use_cue()
 
-    time.sleep(0.01)
+# loop em que ocorre a física
+    while balls_still_moving():
+        for ball in table_balls:
+            ball.move()
+        for i, ball1 in enumerate(table_balls):
+            if (i + 1 == len(table_balls)):
+                break
+            for j, ball2 in enumerate(table_balls[i + 1:]):
+                BallCollision(ball1, ball2)
+            
+        for wall in walls:
+            for ball in table_balls:
+                Ball_Wall_Collision(ball, wall)
+        time.sleep(0.001)
 
-win.close()
+# win.close()
 
 
 

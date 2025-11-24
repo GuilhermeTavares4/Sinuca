@@ -3,7 +3,7 @@ import time
 import random
 
 
-win = gf.GraphWin('bar do patrick', 1000, 1000)
+# win = gf.GraphWin('bar do patrick', 1000, 1000)
 
 class Ball:
     def __init__(self, element, ball_text_circle, text): # ball_text_circle e text são instâncias de Circle e Text do gf
@@ -14,14 +14,14 @@ class Ball:
         
         self.velocity_x = 0
         self.velocity_y = 0
-        self.drag = 0.8
+        self.drag = 1
 
     def move(self):
         self.element.move(self.velocity_x, self.velocity_y)
         if self.text_circle != None and self.number != None: # No caso da bola branca
             self.text_circle.move(self.velocity_x, self.velocity_y)
             self.number.move(self.velocity_x, self.velocity_y)
-        if abs(self.velocity_x) <= 0.08 and abs(self.velocity_y) <= 0.08:
+        if abs(self.velocity_x) <= 0.15 and abs(self.velocity_y) <= 0.15:
             self.velocity_x = 0
             self.velocity_y = 0
 
@@ -68,7 +68,7 @@ def BallScramble():
 
     return positions
 
-def generate_balls(whiteBallCoordX: int, triangleCoords: list, radius):
+def generate_balls(whiteBallCoordX: int, triangleCoords: list, radius, win):
     colors = [[1, 9, "Yellow"], [2, 10, "Blue"], [3, 11, "Red"], [4, 12, "Purple"], [5, 13, "Orange"], [6, 14, "Green"], [7, 15, "Brown"], [8, "Black"]]
     triangleCoords.append(triangleCoords[1]) # Salvando o valor original de y
     balls_postions = BallScramble()
@@ -127,21 +127,21 @@ def generate_balls(whiteBallCoordX: int, triangleCoords: list, radius):
             colN[0] += colN[1]
             colN[1] += 1
             triangleCoords[1] = triangleCoords[2] - (colN[1] * radius) # Coordenadas Y, e Y0
-        triangleCoords[1] += 2*radius # Coordenada Y
+        triangleCoords[1] += 2*radius + 1 # Coordenada Y
 
     return table_balls
 
-table_balls = generate_balls(190, [250, 250], 30)
+# table_balls = generate_balls(190, [250, 250], 30)
 
-for bola in table_balls:
-    bola.setVelocity_x(4)
+# for bola in table_balls:
+#     bola.setVelocity_x(4)
 
-while True:
-    for bola in table_balls:
-        bola.move()
-    time.sleep(0.01)
+# while True:
+#     for bola in table_balls:
+#         bola.move()
+#     time.sleep(0.01)
 
 
-win.getMouse()
-win.close()
+# win.getMouse()
+# win.close()
 
