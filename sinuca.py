@@ -2,9 +2,10 @@ import graphics as gf
 import time
 import math
 import simplesound as sd
+import generate_balls
 
 
-class Ball:
+class Ball: # REMOVER?  ==========================
     def __init__(self, element): #number e number_color são instâncias de Text e Circle gf
         self.element = element
         self.radius = element.getRadius()
