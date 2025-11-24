@@ -1,33 +1,32 @@
 import graphics as gf
+import time
+import random
 
 
 win = gf.GraphWin('bar do patrick', 1000, 1000)
 
 class Ball:
-    def __init__(self, element, color, number, number_color): #number e number_color são instâncias de Text e Circle gf
+    def __init__(self, element, ball_text_circle, text): # ball_text_circle e text são instâncias de Circle e Text do gf
         self.element = element
         self.radius = element.getRadius()
-
-        self.color = color
-        self.number = number
-        self.number_color = number_color
+        self.text_circle = ball_text_circle
+        self.number = text
         
         self.velocity_x = 0
         self.velocity_y = 0
         self.drag = 0.8
-        self.acc_x = 0
-        self.acc_y = 0
 
     def move(self):
         self.element.move(self.velocity_x, self.velocity_y)
+        if self.text_circle != None and self.number != None: # No caso da bola branca
+            self.text_circle.move(self.velocity_x, self.velocity_y)
+            self.number.move(self.velocity_x, self.velocity_y)
         if abs(self.velocity_x) <= 0.08 and abs(self.velocity_y) <= 0.08:
             self.velocity_x = 0
             self.velocity_y = 0
 
-        self.acc_x = -self.velocity_x * self.drag
-        self.acc_y = -self.velocity_y * self.drag
-        self.velocity_x += self.acc_x * 0.01
-        self.velocity_y += self.acc_y * 0.01
+        self.velocity_x -= self.velocity_x * self.drag * 0.01
+        self.velocity_y -= self.velocity_y * self.drag * 0.01
 
     def getX(self):
         return self.element.getCenter().getX()
@@ -50,52 +49,99 @@ class Ball:
     def getVelocity_y(self):
         return self.velocity_y
 
-table_balls = []
+def BallScramble():
+    positions = []
+    numbers = [1, 2, 3, 4, 5, 6, 7, 9, 10, 11, 12, 13, 14, 15]
 
-def generate_balls(radius):
-    colors = ["Yellow", "Blue", "Red", "Purple", "Orange", "Green", "Brown", "Black"]
-    text_color = "Black"
-    center_circle_color = "White"
-    cx = 100 #Valor arbitrário
-    cy = 100 #Valor arbitrário
+    chosen8 = random.randint(1, 9) # Sorteia a posição da bola 8 | 33.33%
 
+    while len(numbers) != 0:
+        chosen = random.choice(numbers)      
+        if (chosen8 <= 3 and len(positions) == 4) or (chosen8 > 3 and chosen8 <= 6 and len(positions) == 7) or (chosen8 > 6 and chosen8 <= 9 and len(positions) == 8):
+            chosen = 8
 
-    table_balls.append(gf.Circle(gf.Point(radius, radius), radius)) # Bola branca
+        if chosen != 8:
+            numbers.pop(numbers.index(chosen))
+            
+        positions.append(chosen)
+        # print(f"\n>>{chosen} |  {positions}")
 
-    color_picker = 0
-    for i in range(1, 15):
+    return positions
+
+def generate_balls(whiteBallCoordX: int, triangleCoords: list, radius):
+    colors = [[1, 9, "Yellow"], [2, 10, "Blue"], [3, 11, "Red"], [4, 12, "Purple"], [5, 13, "Orange"], [6, 14, "Green"], [7, 15, "Brown"], [8, "Black"]]
+    triangleCoords.append(triangleCoords[1]) # Salvando o valor original de y
+    balls_postions = BallScramble()
+    table_balls = []
+    
+    colN = [0, 2]
+
+    if whiteBallCoordX > triangleCoords[0] - 2*radius:
+        print(f"\n>>> Erro! \nA bola branca está em x = {whiteBallCoordX} mas a bola do triângulo está em x = {triangleCoords[0]}, \nHavendo sobreposição já que o raio é {radius} (diâmetro = {2*radius})\n")
+        return
+
+    ball = gf.Circle(gf.Point(whiteBallCoordX, triangleCoords[1]), radius)
+    ball.setFill("White")
+    ball.draw(win)
+    table_balls.append(Ball(ball, None, None)) # Bola branca
+
+    for i, ball_number in enumerate(balls_postions):
         
-        if color_picker == 8: # Recomeça na lista de cores depois da preta, que nunca é alcançada 2 vezes
-            color_picker = 0
-
-        if i > 8: # Círculo interno e texto ficam diferentes
+        if ball_number <= 8: # Círculo interno e texto ficam diferentes
+            text_color = "Black"
+            center_circle_color = "White"
+        else:
             text_color = "White"
             center_circle_color = "Black"
 
-        #(self, element, color, number, number_color) #number e number_color são instâncias de Text e Circle gf
-        table_balls.append(
-            Ball(gf.Circle(gf.Point(cx, cy), radius).draw(win),
-            colors[color_picker], 
-            gf.Text(gf.Point(cx, cy), str(i)).setFill(text_color), # Número da bola e sua cor
-            gf.Circle(gf.Point(cx, cy), radius).setFill(center_circle_color))) # Cículo do texto da bola e sua cor
-
-        # Ball(gf.Circle(gf.Point(cx, cy), radius).draw(win),
-        #     colors[color_picker], 
-        #     gf.Text(gf.Point(cx, cy), str(i)).setFill(text_color), # Número da bola e sua cor
-        #     gf.Circle(gf.Point(cx, cy), radius).setFill(center_circle_color)) # Cículo do texto da bola e sua cor
+        ###################
+        ### Criando a bola
+        ###################
+        ball = gf.Circle(gf.Point(triangleCoords[0], triangleCoords[1]), radius)
+        for color_info in colors:
+            if ball_number in color_info:
+                color = color_info[-1]
+                break
+        ball.setFill(color)
+        ball.draw(win)
         
-        # gf.Circle(gf.Point(cx, cy), radius).draw(win)
-        # test = gf.Circle(gf.Point(cx, cy), radius)
-        # test.draw(win)
+        ###################
+        ### Criando o círculo para o texto da bola
+        ###################
+        text_circle = gf.Circle(gf.Point(triangleCoords[0], triangleCoords[1]), radius/2)
+        text_circle.setFill(center_circle_color)
+        text_circle.draw(win)
 
-        color_picker += 1
+        ###################
+        ### Criando o texto da bola
+        ###################
+        text = gf.Text(gf.Point(triangleCoords[0], triangleCoords[1]), str(ball_number))
+        text.setFill(text_color)
+        text.setSize(round(radius*0.65))
+        text.draw(win)
+        
+        table_balls.append(Ball(ball, text_circle, text))        
 
-        # Por agora só forma uma linha em diagonal
-        cx += radius
-        cy += radius
+        if i == colN[0]:
+            triangleCoords[0] += 2*radius # Coordenada X
+            colN[0] += colN[1]
+            colN[1] += 1
+            triangleCoords[1] = triangleCoords[2] - (colN[1] * radius) # Coordenadas Y, e Y0
+        triangleCoords[1] += 2*radius # Coordenada Y
 
-generate_balls(20)
+    return table_balls
 
-print(table_balls)
+table_balls = generate_balls(190, [250, 250], 30)
+
+for bola in table_balls:
+    bola.setVelocity_x(4)
+
+while True:
+    for bola in table_balls:
+        bola.move()
+    time.sleep(0.01)
+
+
 win.getMouse()
 win.close()
+

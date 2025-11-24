@@ -3,8 +3,10 @@ import time
 import math
 import radio as sd
 import random
+import generate_balls
 
-class Ball:
+
+class Ball: # REMOVER?  ==========================
     def __init__(self, element): #number e number_color são instâncias de Text e Circle gf
         self.element = element
         self.radius = element.getRadius()
