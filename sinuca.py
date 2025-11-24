@@ -172,38 +172,38 @@ def generate_table():
     wall_thickness = 35
     wall_length = 300
     gap = 60
-    corner_gap = 18
+    corner_inverse_gap = 22 #valor maior reduz o gap das bordas da mesa
     
     walls_info = [
         {
             #parede cima-esquerda
-            'p1': gf.Point(x_start_pos - corner_gap, top_walls_height),
+            'p1': gf.Point(x_start_pos - corner_inverse_gap, top_walls_height),
             'p2': gf.Point(x_start_pos + wall_length, top_walls_height + wall_thickness),
         },
         {   
             #parede cima-direita
             'p1': gf.Point(x_start_pos + wall_length + gap, top_walls_height),
-            'p2': gf.Point(x_start_pos + wall_length * 2 + gap + corner_gap, top_walls_height + wall_thickness),
+            'p2': gf.Point(x_start_pos + wall_length * 2 + gap + corner_inverse_gap, top_walls_height + wall_thickness),
         },
         {
             #parede baixo-esquerda
-            'p1': gf.Point(x_start_pos - corner_gap, top_walls_height + wall_thickness + gap * 2 + wall_length),
+            'p1': gf.Point(x_start_pos - corner_inverse_gap, top_walls_height + wall_thickness + gap * 2 + wall_length),
             'p2': gf.Point(x_start_pos + wall_length, top_walls_height + wall_thickness * 2 + gap * 2 + wall_length),
         },
         {
             #parede baixo-direita
             'p1': gf.Point(x_start_pos + wall_length + gap, top_walls_height + wall_thickness + gap * 2 + wall_length),
-            'p2': gf.Point(x_start_pos + wall_length * 2 + gap + corner_gap, top_walls_height + wall_thickness * 2 + gap * 2 + wall_length),
+            'p2': gf.Point(x_start_pos + wall_length * 2 + gap + corner_inverse_gap, top_walls_height + wall_thickness * 2 + gap * 2 + wall_length),
         },
         {
             #parede esquerda
-            'p1': gf.Point(x_start_pos - gap - wall_thickness, top_walls_height + wall_thickness + gap - corner_gap),
-            'p2': gf.Point(x_start_pos - gap, top_walls_height + wall_thickness + gap + wall_length + corner_gap),
+            'p1': gf.Point(x_start_pos - gap - wall_thickness, top_walls_height + wall_thickness + gap - corner_inverse_gap),
+            'p2': gf.Point(x_start_pos - gap, top_walls_height + wall_thickness + gap + wall_length + corner_inverse_gap),
         },
         {
             #parede direita
-            'p1': gf.Point(x_start_pos + wall_length * 2 + gap * 2, top_walls_height + wall_thickness + gap - corner_gap),
-            'p2': gf.Point(x_start_pos + wall_length * 2 + gap * 2 + wall_thickness, top_walls_height + wall_thickness + gap + wall_length + corner_gap),
+            'p1': gf.Point(x_start_pos + wall_length * 2 + gap * 2, top_walls_height + wall_thickness + gap - corner_inverse_gap),
+            'p2': gf.Point(x_start_pos + wall_length * 2 + gap * 2 + wall_thickness, top_walls_height + wall_thickness + gap + wall_length + corner_inverse_gap),
         },
     ]
     #outline para todos os elementos da mesa
@@ -231,12 +231,12 @@ def generate_table():
 
     
     #aumenta o tamanho das paredes para gerar as invisíveis que são usadas para colisão (fisica funciona melhor assim)
-    walls_info[0]['p1'] = gf.Point(x_start_pos - corner_gap, top_walls_height - gap * 2)
-    walls_info[1]['p1'] = gf.Point(x_start_pos + wall_length + gap, top_walls_height - gap * 2)
-    walls_info[2]['p2'] = gf.Point(x_start_pos + wall_length, top_walls_height + wall_thickness * 2 + gap * 4 + wall_length)
-    walls_info[3]['p2'] = gf.Point(x_start_pos + wall_length * 2 + gap + corner_gap, top_walls_height + wall_thickness * 2 + gap * 4 + wall_length)
-    walls_info[4]['p1'] = gf.Point(x_start_pos - gap * 3 - wall_thickness, top_walls_height + wall_thickness + gap - corner_gap)
-    walls_info[5]['p2'] = gf.Point(x_start_pos + wall_length * 2 + gap * 4 + wall_thickness, top_walls_height + wall_thickness + gap + wall_length + corner_gap)
+    walls_info[0]['p1'] = gf.Point(x_start_pos - corner_inverse_gap, top_walls_height - gap * 3)
+    walls_info[1]['p1'] = gf.Point(x_start_pos + wall_length + gap, top_walls_height - gap * 3)
+    walls_info[2]['p2'] = gf.Point(x_start_pos + wall_length, top_walls_height + wall_thickness * 2 + gap * 5 + wall_length)
+    walls_info[3]['p2'] = gf.Point(x_start_pos + wall_length * 2 + gap + corner_inverse_gap, top_walls_height + wall_thickness * 2 + gap * 5 + wall_length)
+    walls_info[4]['p1'] = gf.Point(x_start_pos - gap * 4 - wall_thickness, top_walls_height + wall_thickness + gap - corner_inverse_gap)
+    walls_info[5]['p2'] = gf.Point(x_start_pos + wall_length * 2 + gap * 5 + wall_thickness, top_walls_height + wall_thickness + gap + wall_length + corner_inverse_gap)
 
     for wall in walls_info:
         wall_element = gf.Rectangle(wall['p1'], wall['p2'])
@@ -318,7 +318,7 @@ def balls_still_moving():
 playlist = ['music/pool_music_1.wav', 'music/pool_music_3.wav']
 
 random.shuffle(playlist)
-# sd.play_sequence(playlist)
+# sd.play_sequence(playlist) # descomente para ouvir a trilha sonora :)
 window_size = 1000
 win = gf.GraphWin('bar do patrick', window_size * 1.2, window_size)
 
@@ -333,8 +333,8 @@ generate_table()
 
 table_balls = generate_balls(350, [600, 325], 15, win)
 while True:
-    #aguarda ate que o jogador mova o taco
-    use_cue()
+
+    use_cue() #aguarda até que o jogador mova o taco
 
 # loop em que ocorre a física
     while balls_still_moving():
@@ -352,22 +352,3 @@ while True:
         time.sleep(0.001)
 
 # win.close()
-
-
-
-# char = input("Digite um tijolo")
-# altura = int(input("Digite a altura"))
-# i = 0
-# piramide = ""
-# while i < altura:
-#     j = 0
-#     while j < altura - i:
-#         piramide += " "
-#         j += 1
-#     j = 0
-#     while j < 1 + i * 2:
-#         piramide += char
-#         j += 1
-#     piramide += "\n"
-#     i += 1
-# print(piramide)
