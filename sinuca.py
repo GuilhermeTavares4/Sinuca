@@ -30,6 +30,7 @@ class Wall:
 class Cue:
     def __init__(self, element):
         self.element = element
+        self.assist_line = gf.Line(gf.Point(0,0), gf.Point(0,0))
         self.width = 50
         self.height = 250
         self.last_mouse_pos = gf.Point(0,0)
@@ -91,7 +92,18 @@ class Cue:
         target.setVelocity_x(nx * velocity * -1)
         target.setVelocity_y(ny * velocity * -1)
 
+    def draw_assist_line(self, dx, dy, spawn_pos):
+        self.assist_line.undraw()
+        spawn_x = spawn_pos.getX()
+        spawn_y = spawn_pos.getY()
+        distance = math.sqrt(dx * dx + dy * dy)
+        self.assist_line = gf.Line(gf.Point(spawn_x, spawn_y), gf.Point(spawn_x + dx / distance * -70, spawn_y + dy / distance * -70))
+        self.assist_line.setArrow('last')
+        self.assist_line.draw(win)
+        
+
     def undraw(self):
+        self.assist_line.undraw()
         self.element.undraw()
 
 
@@ -104,7 +116,7 @@ def BallCollision(ball1, ball2):
     if distance < (ball1.getRadius() + ball2.getRadius()):
         nx = dx / distance
         ny = dy / distance
-        displacement = (distance - ball1.getRadius() - ball2.getRadius()) / 2
+        displacement = (distance - ball1.getRadius() - ball2.getRadius()) * 0.5
 
         #impede que uma bola sobreponha a outra
         ball1.element.move((displacement * dx / distance) * -1, (displacement * dy / distance) * -1)
@@ -115,11 +127,11 @@ def BallCollision(ball1, ball2):
 
         dot_product = (rel_vx * nx) + (rel_vy * ny)
 
-        ball1.setVelocity_x(ball1.getVelocity_x() * 0.9 - dot_product * nx)
-        ball1.setVelocity_y(ball1.getVelocity_y()* 0.9 - dot_product * ny)        
+        ball1.setVelocity_x((ball1.getVelocity_x() - dot_product * nx) * 0.9)
+        ball1.setVelocity_y((ball1.getVelocity_y() - dot_product * ny) * 0.9)        
         
-        ball2.setVelocity_x(ball2.getVelocity_x()* 0.9 + dot_product * nx)
-        ball2.setVelocity_y(ball2.getVelocity_y()* 0.9 + dot_product * ny)
+        ball2.setVelocity_x((ball2.getVelocity_x() + dot_product * nx) * 0.9)
+        ball2.setVelocity_y((ball2.getVelocity_y() + dot_product * ny) * 0.9)
 
 
 def Ball_Wall_Collision(ball, wall):
@@ -160,7 +172,7 @@ def generate_table():
     wall_thickness = 35
     wall_length = 300
     gap = 60
-    corner_gap = 20
+    corner_gap = 18
     
     walls_info = [
         {
@@ -286,6 +298,7 @@ def use_cue():
             dx = pos.getX() - table_balls[0].getX()
             angle_rad = math.atan2(dy, dx)
             cue.rotate_polygon_to_angle(angle_rad)
+            cue.draw_assist_line(dx, dy, table_balls[0].element.getCenter())
 
         key = win.checkKey()
         if pos and key == 'space':
