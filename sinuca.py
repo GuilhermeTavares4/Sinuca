@@ -105,11 +105,13 @@ class Cue:
 
         
 def BallCollision(ball1, ball2):
-    dx = ball1.getX() - ball2.getX()
-    dy = ball1.getY() - ball2.getY()
+    ball1_center = ball1.element.getCenter()
+    ball2_center = ball2.element.getCenter()
+    dx = ball1_center.getX() - ball2_center.getX()
+    dy = ball1_center.getY() - ball2_center.getY()
     distance = math.sqrt(dx * dx  + dy * dy)
     #verifica se as bolas estão colidindo
-    if distance < (ball1.getRadius() + ball2.getRadius()):
+    if distance < (ball1.element.getRadius() + ball2.element.getRadius()):
         nx = dx / distance
         ny = dy / distance
         displacement = (distance - ball1.getRadius() - ball2.getRadius()) * 0.5
@@ -131,8 +133,9 @@ def BallCollision(ball1, ball2):
 
 
 def Ball_Wall_Collision(ball, wall):
-    ball_x = ball.getX()
-    ball_y = ball.getY()
+    ball_center = ball.element.getCenter()
+    ball_x = ball_center.getX()
+    ball_y = ball_center.getY()
     horizontal_side = ball_x
     vertical_side = ball_y
     if ball_x < wall.getLeft():

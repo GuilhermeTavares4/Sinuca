@@ -14,7 +14,7 @@ class Ball:
         
         self.velocity_x = 0
         self.velocity_y = 0
-        self.drag = 1
+        self.drag = 1.1
 
     def move(self):
         self.element.move(self.velocity_x, self.velocity_y)
@@ -28,8 +28,7 @@ class Ball:
             self.number.move(X - text_pos.getX(), Y - text_pos.getY())
 
             
-            # self.text_circle.move(self.velocity_x, self.velocity_y)
-            # self.number.move(self.velocity_x, self.velocity_y)
+
         if abs(self.velocity_x) <= 0.15 and abs(self.velocity_y) <= 0.15:
             self.velocity_x = 0
             self.velocity_y = 0
