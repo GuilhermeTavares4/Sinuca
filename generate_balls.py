@@ -22,8 +22,11 @@ class Ball:
             center = self.element.getCenter()
             X = center.getX()
             Y = center.getY()
-            setCenter(self.text_circle, X, Y)
-            setCenter(self.number, X, Y)
+            text_circle_pos = self.text_circle.getCenter()
+            text_pos = self.number.getAnchor()
+            self.text_circle.move(X - text_circle_pos.getX(), Y - text_circle_pos.getY())
+            self.number.move(X - text_pos.getX(), Y - text_pos.getY())
+
             
             # self.text_circle.move(self.velocity_x, self.velocity_y)
             # self.number.move(self.velocity_x, self.velocity_y)
@@ -54,15 +57,6 @@ class Ball:
 
     def getVelocity_y(self):
         return self.velocity_y
-
-def setCenter(item, x, y):
-    if isinstance(item, gf.Text):
-        old = item.getAnchor()
-    else:
-        old = item.getCenter()
-    dx = x - old.getX()
-    dy = y - old.getY()
-    item.move(dx, dy)
 
 
 def BallScramble():

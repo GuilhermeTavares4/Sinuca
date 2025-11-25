@@ -42,7 +42,7 @@ class Cue:
                   gf.Point(mouse_pos.getX() + self.height * 0.5, mouse_pos.getY() + self.width * 0.5), 
                   gf.Point(mouse_pos.getX() - self.height * 0.5, mouse_pos.getY() + self.width * 0.5)
                   ]
-        self.redraw(points)        
+        self.element = gf.Polygon(points)        
     
     def get_center(self):
         points = self.element.getPoints()
@@ -50,11 +50,6 @@ class Cue:
         sum_y = sum(p.getY() for p in points)
         return gf.Point(sum_x / len(points), sum_y / len(points))
 
-    def redraw(self, points):
-        self.element.undraw()
-        self.element = gf.Polygon(points)
-        self.element.setFill(gf.color_rgb(154, 69, 21))
-        self.element.draw(win)
 
     def rotate_polygon_to_angle(self, angle_rad):
         center = self.get_center()
@@ -69,8 +64,10 @@ class Cue:
             
             final_p = gf.Point(rotated_x + center.getX(), rotated_y + center.getY())
             new_points.append(final_p)
-            
-        self.redraw(new_points)
+        
+        self.element = gf.Polygon(new_points)
+        self.element.setFill(gf.color_rgb(154, 69, 21))
+        self.element.draw(win)
 
     def move_towards_target(self, target):
         target_x = target.getX()
@@ -93,7 +90,6 @@ class Cue:
         target.setVelocity_y(ny * velocity * -1)
 
     def draw_assist_line(self, dx, dy, spawn_pos):
-        self.assist_line.undraw()
         spawn_x = spawn_pos.getX()
         spawn_y = spawn_pos.getY()
         distance = math.sqrt(dx * dx + dy * dy)
@@ -294,6 +290,7 @@ def use_cue():
         click = win.checkMouse()
         if click:
             pos = gf.Point(click.getX(), click.getY())
+            cue.undraw()
             cue.move_cue_to_mouse_pos(pos)
             dy = pos.getY() - table_balls[0].getY()
             dx = pos.getX() - table_balls[0].getX()
@@ -331,7 +328,7 @@ cue = Cue(cue_element)
 
 generate_table()
 
-table_balls = generate_balls(350, [600, 325], 15, win)
+table_balls = generate_balls(350, [700, 325], 15, win)
 
 #loop principal do jogo
 while True:
