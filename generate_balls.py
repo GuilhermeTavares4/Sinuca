@@ -19,8 +19,14 @@ class Ball:
     def move(self):
         self.element.move(self.velocity_x, self.velocity_y)
         if self.text_circle != None and self.number != None: # No caso da bola branca
-            self.text_circle.move(self.velocity_x, self.velocity_y)
-            self.number.move(self.velocity_x, self.velocity_y)
+            center = self.element.getCenter()
+            X = center.getX()
+            Y = center.getY()
+            setCenter(self.text_circle, X, Y)
+            setCenter(self.number, X, Y)
+            
+            # self.text_circle.move(self.velocity_x, self.velocity_y)
+            # self.number.move(self.velocity_x, self.velocity_y)
         if abs(self.velocity_x) <= 0.15 and abs(self.velocity_y) <= 0.15:
             self.velocity_x = 0
             self.velocity_y = 0
@@ -48,6 +54,16 @@ class Ball:
 
     def getVelocity_y(self):
         return self.velocity_y
+
+def setCenter(item, x, y):
+    if isinstance(item, gf.Text):
+        old = item.getAnchor()
+    else:
+        old = item.getCenter()
+    dx = x - old.getX()
+    dy = y - old.getY()
+    item.move(dx, dy)
+
 
 def BallScramble():
     positions = []
@@ -80,10 +96,13 @@ def generate_balls(whiteBallCoordX: int, triangleCoords: list, radius, win):
         print(f"\n>>> Erro! \nA bola branca está em x = {whiteBallCoordX} mas a bola do triângulo está em x = {triangleCoords[0]}, \nHavendo sobreposição já que o raio é {radius} (diâmetro = {2*radius})\n")
         return
 
+    ###################
+    ### Bola Branca
+    ###################
     ball = gf.Circle(gf.Point(whiteBallCoordX, triangleCoords[1]), radius)
     ball.setFill("White")
     ball.draw(win)
-    table_balls.append(Ball(ball, None, None)) # Bola branca
+    table_balls.append(Ball(ball, None, None))
 
     for i, ball_number in enumerate(balls_postions):
         
@@ -108,7 +127,7 @@ def generate_balls(whiteBallCoordX: int, triangleCoords: list, radius, win):
         ###################
         ### Criando o círculo para o texto da bola
         ###################
-        text_circle = gf.Circle(gf.Point(triangleCoords[0], triangleCoords[1]), radius/2)
+        text_circle = gf.Circle(gf.Point(triangleCoords[0], triangleCoords[1]), radius/1.9)
         text_circle.setFill(center_circle_color)
         text_circle.draw(win)
 
@@ -117,7 +136,7 @@ def generate_balls(whiteBallCoordX: int, triangleCoords: list, radius, win):
         ###################
         text = gf.Text(gf.Point(triangleCoords[0], triangleCoords[1]), str(ball_number))
         text.setFill(text_color)
-        text.setSize(round(radius*0.65))
+        text.setSize(round(radius*0.5))
         text.draw(win)
         
         table_balls.append(Ball(ball, text_circle, text))        
