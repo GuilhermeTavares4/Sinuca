@@ -1,7 +1,7 @@
 import graphics as gf
 import time
 import math
-import radio as sd
+import radio
 import random
 from generate_balls import *
 
@@ -246,6 +246,7 @@ def generate_table():
     #agora gera as regiões dos buracos da mesa (invisíveis)
     small_radius = gap * 0.5
     radius = gap * 0.7
+
     holes_info = [
         {
             #buraco cima-esquerda
@@ -318,11 +319,10 @@ def balls_still_moving():
 playlist = ['music/pool_music_1.wav', 'music/pool_music_3.wav']
 
 random.shuffle(playlist)
-# sd.play_sequence(playlist) # descomente para ouvir a trilha sonora :)
+# radio.play_sequence(playlist) # descomente para ouvir a trilha sonora :)
 window_size = 1000
 win = gf.GraphWin('bar do patrick', window_size * 1.2, window_size)
 
-table_balls = []
 pocketed_balls = []
 walls = []
 
@@ -332,6 +332,8 @@ cue = Cue(cue_element)
 generate_table()
 
 table_balls = generate_balls(350, [600, 325], 15, win)
+
+#loop principal do jogo
 while True:
 
     use_cue() #aguarda até que o jogador mova o taco
