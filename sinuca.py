@@ -189,7 +189,6 @@ def Ball_Hole_Collision(ball, hole, player, teams):
         if player in teams[0].players:
             print(f"\n ==========================\n Player: {player} está no time: {teams[0].name} com players: {teams[0].players}")
             table_balls.remove(ball)
-            print(table_balls)
             teams[0].player_pocketed(player, ball)
             print(teams[0].player_pocketeds)
         else:
