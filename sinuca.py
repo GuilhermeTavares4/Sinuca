@@ -4,6 +4,7 @@ import math
 import radio
 import random
 from generate_balls import *
+from generate_team import *
 
 
 class Wall:
@@ -176,7 +177,7 @@ def Ball_Wall_Collision(ball, wall):
             ball.setVelocity_y(ball.getVelocity_y() * -0.9)
         
     
-def Ball_Hole_Collision(ball, hole):
+def Ball_Hole_Collision(ball, hole, player, teams):
     ball_center = ball.element.getCenter()
     hole_center = hole.element.getCenter()
     dx = ball_center.getX() - hole_center.getX()
@@ -185,6 +186,15 @@ def Ball_Hole_Collision(ball, hole):
 
     #verifica se as bola e o buraco estão colidindo :)
     if distance < (ball.element.getRadius() * 0.5 + hole.element.getRadius()):
+        if player in teams[0].players:
+            print(f"{player} está no time {teams[0].name} com players: {teams[0].players}")
+            ### if ball not in player.pocketeds adicionar abaixo, se não ignorar
+            teams[0].player_pocketed(player, ball.number.getText())
+            print(teams[0].player_pocketeds)
+        else:
+            print(f"{player} está no time {teams[1].name} com players: {teams[1].players}")
+            teams[1].player_pocketed(player, ball.number.getText())
+            print(teams[1].player_pocketeds)
         ball.undraw() # por enquanto só torna a bola invisível
         
 
@@ -357,8 +367,39 @@ generate_table()
 
 table_balls = generate_balls(350, [700, 325], 15, win)
 
-#loop principal do jogo
+teams = []
+teams = [Team("ab", ["a", "b"]), Team("cde", ["c", "d", "e"])] # Definição direta
+print(teams[0].players, teams[1].players)
+
+# Adicionando os times
+
+# teams.append(generate_team("Primeiro"))
+# teams.append(generate_team("Segundo"))
+
+player_order = [] # Ordem dos jogadores
+luck = random.randint(1, 2) # Sorteio para ver qual time começa
+
+if luck == 1:
+    first = teams[0].players.copy()
+    second = teams[1].players.copy()
+else:
+    first = teams[1].players.copy()
+    second = teams[0].players.copy()
+
+while len(first) != 0 or len(second) != 0:
+    if len(first) != 0:
+        player_order.append(first[0])
+        first.pop(0)
+    if len(second) != 0:
+        player_order.append(second[0])
+        second.pop(0)
+
+current_player = 0 
+
 while True:
+
+    if current_player == len(player_order):
+        current_player = 0
 
     use_cue() #aguarda até que o jogador mova o taco
 
@@ -378,9 +419,11 @@ while True:
 
         for hole in holes:
             for ball in table_balls:
-                Ball_Hole_Collision(ball, hole)
+                Ball_Hole_Collision(ball, hole, player_order[current_player], teams)
 
         time.sleep(0.001)
+
+    current_player += 1
         
 
 # win.close()
