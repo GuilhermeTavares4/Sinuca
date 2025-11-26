@@ -16,7 +16,9 @@ def generate_team(order):
     return players
 
 
-def get_text_input():
+# código só segue após o usuário digitar algo na caixa de entrada e apertar enter
+# talvez passar a caixa de input como parametro (gf.Entry)
+def get_text_input(): 
     while True:
         key = win.getKey()
         if key == 'Return' and nome_input.getText() != '':
