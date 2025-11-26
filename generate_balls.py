@@ -18,7 +18,7 @@ class Ball:
 
     def move(self):
         self.element.move(self.velocity_x, self.velocity_y)
-        if self.text_circle != None and self.number != None: # No caso da bola branca
+        if self.text_circle != None: # and self.number != None  // No caso da bola branca
             center = self.element.getCenter()
             X = center.getX()
             Y = center.getY()
@@ -26,7 +26,6 @@ class Ball:
             text_pos = self.number.getAnchor()
             self.text_circle.move(X - text_circle_pos.getX(), Y - text_circle_pos.getY())
             self.number.move(X - text_pos.getX(), Y - text_pos.getY())
-
             
 
         if abs(self.velocity_x) <= 0.15 and abs(self.velocity_y) <= 0.15:
@@ -56,6 +55,12 @@ class Ball:
 
     def getVelocity_y(self):
         return self.velocity_y
+    
+    def undraw(self):
+        self.element.undraw()
+        if self.text_circle != None:
+            self.text_circle.undraw()
+            self.number.undraw()
 
 
 def BallScramble():

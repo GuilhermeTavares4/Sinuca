@@ -27,6 +27,17 @@ class Wall:
         return self.bottom
 
 
+class Hole:
+    def __init__(self, element):
+        self.element = element
+    
+    def getRadius(self):
+        return self.element.getRadius()
+    
+    def getCenter(self):
+        return self.element.getCenter()
+
+
 class Cue:
     def __init__(self, element):
         self.element = element
@@ -163,7 +174,19 @@ def Ball_Wall_Collision(ball, wall):
         else:
             ball.element.move(0, (displacement * dy / distance) * -1)
             ball.setVelocity_y(ball.getVelocity_y() * -0.9)
+        
+    
+def Ball_Hole_Collision(ball, hole):
+    ball_center = ball.element.getCenter()
+    hole_center = hole.element.getCenter()
+    dx = ball_center.getX() - hole_center.getX()
+    dy = ball_center.getY() - hole_center.getY()
+    distance = math.sqrt(dx * dx  + dy * dy)
 
+    #verifica se as bola e o buraco estão colidindo :)
+    if distance < (ball.element.getRadius() * 0.5 + hole.element.getRadius()):
+        ball.undraw() # por enquanto só torna a bola invisível
+        
 
 def generate_table():
     x_start_pos = 270
@@ -227,7 +250,6 @@ def generate_table():
         wall_element.setFill(gf.color_rgb(0, 101, 83))
         wall_element.setOutline(outline_color)
         wall_element.draw(win)
-
     
     #aumenta o tamanho das paredes para gerar as invisíveis que são usadas para colisão (fisica funciona melhor assim)
     walls_info[0]['p1'] = gf.Point(x_start_pos - corner_inverse_gap, top_walls_height - gap * 3)
@@ -279,12 +301,14 @@ def generate_table():
         },
     ]
 
+    # buracos para encaçapar as bolas
     for hole in holes_info:
         hole_element = gf.Circle(hole['center'], hole['radius'])
         hole_element.setFill(gf.color_rgb(193, 189, 175))
         hole_element.setOutline(outline_color)
         hole_element.draw(win)
-        #holes.append(wall_obj)
+        hole_obj = Hole(hole_element)
+        holes.append(hole_obj)
 
 
 def use_cue():
@@ -315,7 +339,6 @@ def balls_still_moving():
     return False
         
 
-
 playlist = ['music/pool_music_1.wav', 'music/pool_music_3.wav']
 
 random.shuffle(playlist)
@@ -325,6 +348,7 @@ win = gf.GraphWin('bar do patrick', window_size * 1.2, window_size)
 
 pocketed_balls = []
 walls = []
+holes = []
 
 cue_element = gf.Polygon(gf.Point(0,0))
 cue = Cue(cue_element)
@@ -351,6 +375,12 @@ while True:
         for wall in walls:
             for ball in table_balls:
                 Ball_Wall_Collision(ball, wall)
+
+        for hole in holes:
+            for ball in table_balls:
+                Ball_Hole_Collision(ball, hole)
+
         time.sleep(0.001)
+        
 
 # win.close()
