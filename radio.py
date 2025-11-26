@@ -41,9 +41,7 @@ def play_sequence(file_list):
     return t
 
 def stop_all():
-    """
-    Forces sound to stop immediately (Best effort).
-    """
+
     global _STOP_FLAG
     _STOP_FLAG = True
     
