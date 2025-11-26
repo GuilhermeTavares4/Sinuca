@@ -62,7 +62,6 @@ class Cue:
         sum_y = sum(p.getY() for p in points)
         return gf.Point(sum_x / len(points), sum_y / len(points))
 
-
     def rotate_polygon_to_angle(self, angle_rad):
         center = self.get_center()
         r = 8
@@ -100,6 +99,7 @@ class Cue:
             time.sleep(0.01)
         target.setVelocity_x(nx * velocity * -1)
         target.setVelocity_y(ny * velocity * -1)
+
 
     def draw_assist_line(self, dx, dy, spawn_pos):
         spawn_x = spawn_pos.getX()
@@ -202,7 +202,7 @@ def Ball_Hole_Collision(ball, hole, player, teams):
 
 def generate_table():
     x_start_pos = 270
-    top_walls_height = 100
+    top_walls_height = 250
     wall_thickness = 35
     wall_length = 300
     gap = 60
@@ -344,6 +344,7 @@ def use_cue():
     cue.undraw()
 
 
+#verifica se ainda tem alguma bola se mexendo na mesa
 def balls_still_moving():
     for ball in table_balls:
         if ball.getVelocity_x() != 0 or ball.getVelocity_y() != 0:
@@ -351,13 +352,37 @@ def balls_still_moving():
     return False
         
 
-playlist = ['music/pool_music_1.wav', 'music/pool_music_3.wav']
+def play_music():
+    playlist = ['music/pool_music_1.wav', 'music/pool_music_3.wav']
 
-random.shuffle(playlist)
-# radio.play_sequence(playlist) # descomente para ouvir a trilha sonora :)
+    random.shuffle(playlist)
+    radio.play_sequence(playlist)
+
+
+def randomize_player_order():
+    player_order = [] # Ordem dos jogadores
+    luck = random.randint(1, 2) # Sorteio para ver qual time começa
+
+    if luck == 1:
+        first = teams[0].players.copy()
+        second = teams[1].players.copy()
+    else:
+        first = teams[1].players.copy()
+        second = teams[0].players.copy()
+
+    while len(first) != 0 or len(second) != 0:
+        if len(first) != 0:
+            player_order.append(first[0])
+            first.pop(0)
+        if len(second) != 0:
+            player_order.append(second[0])
+            second.pop(0)
+    return player_order
+
+
 window_size = 1000
 win = gf.GraphWin('bar do patrick', window_size * 1.2, window_size)
-
+# play_music()
 pocketed_balls = []
 walls = []
 holes = []
@@ -367,34 +392,30 @@ cue = Cue(cue_element)
 
 generate_table()
 
-table_balls = generate_balls(350, [700, 325], 15, win)
+table_balls = generate_balls(350, [700, 500], 15, win)
+
+
+#inputs para os nomes dos times e dos jogadores
+input_label = gf.Text(gf.Point(600, 100), '')
+input_label.draw(win)
+nome_input = gf.Entry(gf.Point(600, 150), 10)
+nome_input.setFill("white")
+nome_input.setSize(25)
+nome_input.draw(win)
 
 teams = []
-teams = [Team("ab", ["a", "b"]), Team("cde", ["c", "d", "e"])] # Definição direta
-print(teams[0].players, teams[1].players)
 
 # Adicionando os times
+teams.append(generate_team("primeiro", input_label, nome_input, win))
+teams.append(generate_team("segundo", input_label, nome_input, win))
+print(teams)
+input_label.undraw()
+nome_input.undraw()
 
-# teams.append(generate_team("Primeiro"))
-# teams.append(generate_team("Segundo"))
+current_player_text = gf.Text(gf.Point(600, 180), "")
+current_player_text.draw(win)
 
-player_order = [] # Ordem dos jogadores
-luck = random.randint(1, 2) # Sorteio para ver qual time começa
-
-if luck == 1:
-    first = teams[0].players.copy()
-    second = teams[1].players.copy()
-else:
-    first = teams[1].players.copy()
-    second = teams[0].players.copy()
-
-while len(first) != 0 or len(second) != 0:
-    if len(first) != 0:
-        player_order.append(first[0])
-        first.pop(0)
-    if len(second) != 0:
-        player_order.append(second[0])
-        second.pop(0)
+player_order = randomize_player_order()
 
 current_player = 0 
 
@@ -402,6 +423,8 @@ while True:
 
     if current_player == len(player_order):
         current_player = 0
+    
+    current_player_text.setText(f"Éh a vez de {player_order[current_player]}")
 
     use_cue() #aguarda até que o jogador mova o taco
 
