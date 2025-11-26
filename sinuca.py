@@ -187,13 +187,15 @@ def Ball_Hole_Collision(ball, hole, player, teams):
     #verifica se as bola e o buraco estão colidindo :)
     if distance < (ball.element.getRadius() * 0.5 + hole.element.getRadius()):
         if player in teams[0].players:
-            print(f"{player} está no time {teams[0].name} com players: {teams[0].players}")
-            ### if ball not in player.pocketeds adicionar abaixo, se não ignorar
-            teams[0].player_pocketed(player, ball.number.getText())
+            print(f"\n ==========================\n Player: {player} está no time: {teams[0].name} com players: {teams[0].players}")
+            table_balls.remove(ball)
+            print(table_balls)
+            teams[0].player_pocketed(player, ball)
             print(teams[0].player_pocketeds)
         else:
-            print(f"{player} está no time {teams[1].name} com players: {teams[1].players}")
-            teams[1].player_pocketed(player, ball.number.getText())
+            print(f"\n ==========================\n Player: {player} está no time: {teams[1].name} com players: {teams[1].players}")
+            table_balls.remove(ball)
+            teams[1].player_pocketed(player, ball)
             print(teams[1].player_pocketeds)
         ball.undraw() # por enquanto só torna a bola invisível
         
