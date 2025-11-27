@@ -3,7 +3,7 @@ window_size = 800
 win = gf.GraphWin('bar do patrick', window_size * 1.2, window_size)
 
 
-def generate_team(order):
+def generate_team(order, input_label):
     input_label.setText(f'Digite o nome do time {order}')
     team_name = get_text_input()
     input_label.setText(f'Digite o número de jogadores do time {team_name}')
@@ -18,12 +18,12 @@ def generate_team(order):
 
 # código só segue após o usuário digitar algo na caixa de entrada e apertar enter
 # talvez passar a caixa de input como parametro (gf.Entry)
-def get_text_input(): 
+def get_text_input(entry): 
     while True:
         key = win.getKey()
-        if key == 'Return' and nome_input.getText() != '':
-            text = nome_input.getText()
-            nome_input.setText('')
+        if key == 'Return' and entry.getText() != '':
+            text = entry.getText()
+            entry.setText('')
             break
     return text
 

@@ -11,16 +11,16 @@ class Team:
         self.pocketed_balls.append(ball)
         self.player_pocketeds[player].append(ball)
 
-    def getName():
+    def getName(self):
         return self.name
     
-    def getPocketedBalls():
+    def getPocketedBalls(self):
         return self.pocketed_balls
 
-    def getPlayers():
+    def getPlayers(self):
         return self.players
 
-    def getPlayerPocketeds():
+    def getPlayerPocketeds(self):
         return self.player_pocketeds
 
 # test = Team(["Ana", "Bianca", "Carol"])
@@ -29,11 +29,25 @@ class Team:
 # test.player_pocketed("Bianca", 8)
 # print(vars(test))
 
-def generate_team(order):
-    name = input(f"\n> Insira um nome para o {order} time: ")
-    n = int(input(f">> Número de jogadores do time {name}: "))
+def generate_team(order, input_label, entry, win):
+    input_label.setText(f'Digite o nome do {order} time')
+    team_name = get_text_input(entry, win)
+    input_label.setText(f'Digite o número de jogadores do time {team_name}')
+    n = int(get_text_input(entry, win))
     players = []
     for i in range(n):
-        players.append(input(f">>> Insira o nome do player {i + 1}: "))
-    team = Team(name, players)
+        input_label.setText(f'Digite o nome do jogador {i + 1}')
+        players.append(get_text_input(entry, win))
+    team = Team(team_name, players)
     return team
+                
+
+def get_text_input(entry, win): 
+    while True:
+        key = win.getKey()
+        if key == 'Return' and entry.getText() != '':
+            text = entry.getText()
+            entry.setText('')
+            break
+    return text
+
