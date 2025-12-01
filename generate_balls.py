@@ -6,12 +6,12 @@ import random
 # win = gf.GraphWin('bar do patrick', 1000, 1000)
 
 class Ball:
-    def __init__(self, element, ball_text_circle, text): # ball_text_circle e text são instâncias de Circle e Text do gf
+    def __init__(self, element, ball_text_circle, text, ball_type): # ball_text_circle e text são instâncias de Circle e Text do gf
         self.element = element
         self.radius = element.getRadius()
         self.text_circle = ball_text_circle
         self.number = text
-        
+        self.ball_type = ball_type
         self.velocity_x = 0
         self.velocity_y = 0
         self.drag = 1.1
@@ -100,16 +100,20 @@ def generate_balls(whiteBallCoordX: int, triangleCoords: list, radius, win):
     ball = gf.Circle(gf.Point(whiteBallCoordX, triangleCoords[1]), radius)
     ball.setFill("White")
     ball.draw(win)
-    table_balls.append(Ball(ball, None, None))
+    table_balls.append(Ball(ball, None, None, 'cue_ball'))
 
     for i, ball_number in enumerate(balls_postions):
         
         if ball_number <= 8: # Círculo interno e texto ficam diferentes
             text_color = "Black"
             center_circle_color = "White"
+            ball_type = "low_ball"
+            if ball_number == 8:
+                ball_type = "8-ball"
         else:
             text_color = "White"
             center_circle_color = "Black"
+            ball_type = "high_ball"
 
         ###################
         ### Criando a bola
@@ -137,7 +141,7 @@ def generate_balls(whiteBallCoordX: int, triangleCoords: list, radius, win):
         text.setSize(round(radius*0.5))
         text.draw(win)
         
-        table_balls.append(Ball(ball, text_circle, text))        
+        table_balls.append(Ball(ball, text_circle, text, ball_type))        
 
         if i == colN[0]:
             triangleCoords[0] += 2*radius # Coordenada X

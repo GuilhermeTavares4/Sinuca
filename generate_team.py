@@ -4,6 +4,7 @@ class Team:
         self.pocketed_balls = []
         self.players = players
         self.player_pocketeds = {}
+        self.target_ball_type = ""
         for player in players:
             self.player_pocketeds[player] = []
 
