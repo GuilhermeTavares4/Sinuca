@@ -124,13 +124,27 @@ def BallCollision(ball1, ball2):
     distance = math.sqrt(dx * dx  + dy * dy)
     #verifica se as bolas estão colidindo
     if distance < (ball1.element.getRadius() + ball2.element.getRadius()):
+
+        #define qual foi a primeira bola que o jogador atingiu em sua jogada
+        global first_ball_hit
+        if first_ball_hit == "":
+            first_ball_hit = ball2.ball_type
+
         nx = dx / distance
         ny = dy / distance
         displacement = (distance - ball1.getRadius() - ball2.getRadius()) * 0.5
 
         #impede que uma bola sobreponha a outra
         ball1.element.move((displacement * dx / distance) * -1, (displacement * dy / distance) * -1)
+        if ball1.text_circle != None:
+            ball1.text_circle.move((displacement * dx / distance) * -1, (displacement * dy / distance) * -1)
+            ball1.number.move((displacement * dx / distance) * -1, (displacement * dy / distance) * -1)
+
         ball2.element.move(displacement * dx / distance, displacement * dy / distance)
+        if ball2.text_circle != None:
+            ball2.text_circle.move(displacement * dx / distance, displacement * dy / distance)
+            ball2.number.move(displacement * dx / distance, displacement * dy / distance)
+        
 
         rel_vx = ball1.getVelocity_x() - ball2.getVelocity_x()
         rel_vy = ball1.getVelocity_y() - ball2.getVelocity_y()
@@ -187,16 +201,19 @@ def Ball_Hole_Collision(ball, hole, player, teams):
     #verifica se as bola e o buraco estão colidindo :)
     if distance < (ball.element.getRadius() * 0.5 + hole.element.getRadius()):
         if player in teams[0].players:
-            print(f"\n ==========================\n Player: {player} está no time: {teams[0].name} com players: {teams[0].players}")
-            table_balls.remove(ball)
-            teams[0].player_pocketed(player, ball)
-            print(teams[0].player_pocketeds)
+            team = teams[0]
+            other_team = teams[1]
         else:
-            print(f"\n ==========================\n Player: {player} está no time: {teams[1].name} com players: {teams[1].players}")
-            table_balls.remove(ball)
-            teams[1].player_pocketed(player, ball)
-            print(teams[1].player_pocketeds)
-        ball.undraw() # por enquanto só torna a bola invisível
+            team = teams[1]
+            other_team = teams[0]
+
+        team.player_pocketed(player, ball)
+        table_balls.remove(ball)
+        ball.undraw()
+
+        global first_ball_pocketed
+        if first_ball_pocketed != "high_ball" and first_ball_pocketed != "low_ball":
+            first_ball_pocketed = ball.ball_type
         
 
 def generate_table():
@@ -385,13 +402,13 @@ win = gf.GraphWin('bar do patrick', window_size * 1.2, window_size)
 pocketed_balls = []
 walls = []
 holes = []
-
+ball_radius = 15
 cue_element = gf.Polygon(gf.Point(0,0))
 cue = Cue(cue_element)
 
 generate_table()
 
-table_balls = generate_balls(350, [700, 500], 15, win)
+table_balls = generate_balls(350, [700, 500], ball_radius, win)
 
 
 #inputs para os nomes dos times e dos jogadores
@@ -407,7 +424,6 @@ teams = []
 # Adicionando os times
 teams.append(generate_team("primeiro", input_label, nome_input, win))
 teams.append(generate_team("segundo", input_label, nome_input, win))
-print(teams)
 input_label.undraw()
 nome_input.undraw()
 
@@ -416,14 +432,34 @@ current_player_text.draw(win)
 
 player_order = randomize_player_order()
 
-current_player = 0 
+current_player = 0
+first_ball_pocketed = "" # vai definir qual tipo de bola cada time deve encaçapar
 
 while True:
 
     if current_player == len(player_order):
         current_player = 0
+
+    if player_order[current_player] in teams[0].players:
+        team = teams[0]
+        other_team = teams[1]
+    else:
+        team = teams[1]
+        other_team = teams[0]
     
-    current_player_text.setText(f"Éh a vez de {player_order[current_player]}")
+    display_text = f"É a vez de {player_order[current_player]}"
+
+    if team.target_ball_type != "":
+        if team.target_ball_type == "low_ball":
+            display_text += "\nVocê deve encaçapar as menores."
+        else:
+            display_text += "\nVocê deve encaçapar as maiores."
+    else:
+        display_text += "\nVocê pode encaçapar qualquer bola!"
+
+    current_player_text.setText(display_text)
+
+    first_ball_hit = ""
 
     use_cue() #aguarda até que o jogador mova o taco
 
@@ -447,7 +483,36 @@ while True:
 
         time.sleep(0.001)
 
-    current_player += 1
-        
 
+
+    print(f"first ball hit: {first_ball_hit}\nteam target ball: {team.target_ball_type}")
+    if first_ball_hit != team.target_ball_type and team.target_ball_type != "":
+        print('errou afude')
+        #aqui vai o codigo pra encaçapar automaticamente uma bola do time oponente caso o jogador tenha feito uma jogada considerada errada
+
+
+    #define qual tipo de bola cada time deve encaçapar. Importante que aconteça depois da verificação da jogada ^
+    if team.target_ball_type == "":
+        if first_ball_pocketed == "low_ball":
+            team.target_ball_type = "low_ball"
+            other_team.target_ball_type = "high_ball"
+
+        elif first_ball_pocketed == "high_ball":
+            team.target_ball_type = "high_ball"
+            other_team.target_ball_type = "low_ball"
+
+    #respawna a bola branca caso ela tenha sido encaçapada
+    if "cue_ball" not in map(lambda ball: ball.ball_type, table_balls):
+        table_balls.insert(0, spawn_cue_ball(350, 500, ball_radius, win))
+
+        # move a bola caso ela spawne em cima de outra (nao é o melhor jeito, interessante mexer nisso depois)
+        for i, ball1 in enumerate(table_balls):
+            if (i + 1 == len(table_balls)):
+                break
+            for j, ball2 in enumerate(table_balls[i + 1:]):
+                BallCollision(ball1, ball2)
+    
+    current_player += 1
+    
+    
 # win.close()

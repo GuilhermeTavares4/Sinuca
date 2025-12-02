@@ -97,10 +97,7 @@ def generate_balls(whiteBallCoordX: int, triangleCoords: list, radius, win):
     ###################
     ### Bola Branca
     ###################
-    ball = gf.Circle(gf.Point(whiteBallCoordX, triangleCoords[1]), radius)
-    ball.setFill("White")
-    ball.draw(win)
-    table_balls.append(Ball(ball, None, None, 'cue_ball'))
+    table_balls.append(spawn_cue_ball(whiteBallCoordX, triangleCoords[1], radius, win))
 
     for i, ball_number in enumerate(balls_postions):
         
@@ -109,7 +106,7 @@ def generate_balls(whiteBallCoordX: int, triangleCoords: list, radius, win):
             center_circle_color = "White"
             ball_type = "low_ball"
             if ball_number == 8:
-                ball_type = "8-ball"
+                ball_type = "8_ball"
         else:
             text_color = "White"
             center_circle_color = "Black"
@@ -151,6 +148,13 @@ def generate_balls(whiteBallCoordX: int, triangleCoords: list, radius, win):
         triangleCoords[1] += 2*radius + 1 # Coordenada Y
 
     return table_balls
+
+
+def spawn_cue_ball(spawn_x, spawn_y, radius, win):
+    cue_ball = gf.Circle(gf.Point(spawn_x, spawn_y), radius)
+    cue_ball.setFill("White")
+    cue_ball.draw(win)
+    return Ball(cue_ball, None, None, 'cue_ball')
 
 # table_balls = generate_balls(190, [250, 250], 30)
 
