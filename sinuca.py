@@ -1,10 +1,10 @@
-import graphics as gf
+from src import graphics as gf
+from src.balls import *
+from src.table import *
+from src.team import *
+from src.radio import *
 import time
-import radio
 import random
-from balls import *
-from table import *
-from team import *
         
 
 def play_music():

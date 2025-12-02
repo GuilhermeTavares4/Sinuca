@@ -1,4 +1,4 @@
-import graphics as gf
+from . import graphics as gf
 import math
 import time
 
