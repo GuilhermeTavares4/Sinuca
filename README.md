@@ -2,6 +2,10 @@
 
 Trabalho para a disciplina de Algoritmos e Estrutura de Dados I com a biblioteca graphics.py
 
+<p align="center">
+  <img src="./assets/BarPatrickLogo.png" alt="Description of image "width="180" height="180">
+</p>
+
 ## Jogo de Sinuca – Regras e Controles
 
 ### Forma de jogar:
