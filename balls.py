@@ -1,4 +1,5 @@
 import graphics as gf
+import math
 import time
 import random
 
@@ -82,6 +83,7 @@ def BallScramble():
 
     return positions
 
+
 def generate_balls(whiteBallCoordX: int, triangleCoords: list, radius, win):
     colors = [[1, 9, "Yellow"], [2, 10, "Blue"], [3, 11, "Red"], [4, 12, "Purple"], [5, 13, "Orange"], [6, 14, "Green"], [7, 15, "Brown"], [8, "Black"]]
     triangleCoords.append(triangleCoords[1]) # Salvando o valor original de y
@@ -156,17 +158,108 @@ def spawn_cue_ball(spawn_x, spawn_y, radius, win):
     cue_ball.draw(win)
     return Ball(cue_ball, None, None, 'cue_ball')
 
-# table_balls = generate_balls(190, [250, 250], 30)
 
-# for bola in table_balls:
-#     bola.setVelocity_x(4)
+def BallCollision(ball1, ball2, first_ball_hit, first_ball_pocketed, win):
+    ball1_center = ball1.element.getCenter()
+    ball2_center = ball2.element.getCenter()
+    dx = ball1_center.getX() - ball2_center.getX()
+    dy = ball1_center.getY() - ball2_center.getY()
+    distance = math.sqrt(dx * dx  + dy * dy)
+    #verifica se as bolas estão colidindo
+    if distance < (ball1.element.getRadius() + ball2.element.getRadius()):
 
-# while True:
-#     for bola in table_balls:
-#         bola.move()
-#     time.sleep(0.01)
+        #define qual foi a primeira bola que o jogador atingiu em sua jogada
+        if first_ball_hit == "":
+            first_ball_hit = ball2.ball_type
+
+        nx = dx / distance
+        ny = dy / distance
+        displacement = (distance - ball1.getRadius() - ball2.getRadius()) * 0.5
+
+        #impede que uma bola sobreponha a outra
+        ball1.element.move((displacement * dx / distance) * -1, (displacement * dy / distance) * -1)
+        if ball1.text_circle != None:
+            ball1.text_circle.move((displacement * dx / distance) * -1, (displacement * dy / distance) * -1)
+            ball1.number.move((displacement * dx / distance) * -1, (displacement * dy / distance) * -1)
+
+        ball2.element.move(displacement * dx / distance, displacement * dy / distance)
+        if ball2.text_circle != None:
+            ball2.text_circle.move(displacement * dx / distance, displacement * dy / distance)
+            ball2.number.move(displacement * dx / distance, displacement * dy / distance)
+        
+
+        rel_vx = ball1.getVelocity_x() - ball2.getVelocity_x()
+        rel_vy = ball1.getVelocity_y() - ball2.getVelocity_y()
+
+        dot_product = (rel_vx * nx) + (rel_vy * ny)
+
+        ball1.setVelocity_x((ball1.getVelocity_x() - dot_product * nx) * 0.9)
+        ball1.setVelocity_y((ball1.getVelocity_y() - dot_product * ny) * 0.9)        
+        
+        ball2.setVelocity_x((ball2.getVelocity_x() + dot_product * nx) * 0.9)
+        ball2.setVelocity_y((ball2.getVelocity_y() + dot_product * ny) * 0.9)
 
 
-# win.getMouse()
-# win.close()
+def Ball_Wall_Collision(ball, wall, win):
+    ball_center = ball.element.getCenter()
+    ball_x = ball_center.getX()
+    ball_y = ball_center.getY()
+    horizontal_side = ball_x
+    vertical_side = ball_y
+    if ball_x < wall.getLeft():
+        horizontal_side = wall.getLeft()
+    else:
+        if ball_x > wall.getRight(): 
+            horizontal_side = wall.getRight()
+    
+    if ball_y < wall.getTop():
+        vertical_side = wall.getTop()
+    else:
+        if ball_y > wall.getBottom():
+            vertical_side = wall.getBottom()
 
+    dx = ball_x - horizontal_side
+    dy = ball_y - vertical_side
+    distance = math.sqrt(dx * dx + dy * dy)
+    if distance <= ball.getRadius():
+        displacement = distance - ball.getRadius()
+        if distance < 1:
+            distance = 1
+        if abs(dy) < abs(dx):
+            ball.element.move((displacement * dx / distance) * -1, 0)
+            ball.setVelocity_x(ball.getVelocity_x() * -0.9)
+        else:
+            ball.element.move(0, (displacement * dy / distance) * -1)
+            ball.setVelocity_y(ball.getVelocity_y() * -0.9)
+        
+    
+def Ball_Hole_Collision(table_balls, first_ball_pocketed, ball, hole, player, teams, win):
+    ball_center = ball.element.getCenter()
+    hole_center = hole.element.getCenter()
+    dx = ball_center.getX() - hole_center.getX()
+    dy = ball_center.getY() - hole_center.getY()
+    distance = math.sqrt(dx * dx  + dy * dy)
+
+    #verifica se as bola e o buraco estão colidindo :)
+    if distance < (ball.element.getRadius() * 0.5 + hole.element.getRadius()):
+        if player in teams[0].players:
+            team = teams[0]
+            other_team = teams[1]
+        else:
+            team = teams[1]
+            other_team = teams[0]
+
+        team.player_pocketed(player, ball)
+        table_balls.remove(ball)
+        ball.undraw()
+
+        if first_ball_pocketed != "high_ball" and first_ball_pocketed != "low_ball":
+            first_ball_pocketed = ball.ball_type
+
+
+#verifica se ainda tem alguma bola se mexendo na mesa
+def balls_still_moving(table_balls):
+    for ball in table_balls:
+        if ball.getVelocity_x() != 0 or ball.getVelocity_y() != 0:
+            return True            
+    return False

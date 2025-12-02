@@ -1,10 +1,13 @@
+import itertools
+
 class Team:
     def __init__(self, name, players: list):
         self.name = name
         self.pocketed_balls = []
-        self.players = players
-        self.player_pocketeds = {}
         self.target_ball_type = ""
+        self.players = players
+        self.player_to_play = itertools.cycle(players)
+        self.player_pocketeds = {}
         for player in players:
             self.player_pocketeds[player] = []
 
@@ -20,6 +23,9 @@ class Team:
 
     def getPlayers(self):
         return self.players
+
+    def nextToPlay(self):
+        return next(self.player_to_play)
 
     def getPlayerPocketeds(self):
         return self.player_pocketeds
