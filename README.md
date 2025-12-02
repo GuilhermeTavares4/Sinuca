@@ -14,8 +14,8 @@ O objetivo do jogo é encaçapar as bolas coloridas ou numeradas com a bola bran
 
 ### Controles:
 
-* Mira e Direção: Clique com o mouse para alinhar o taco à bola branca. O "aim assist" ajuda a ajustar a trajetória da tacada.
+* **Mira e Direção:** Clique com o mouse para alinhar o taco à bola branca. O "aim assist" ajuda a ajustar a trajetória da tacada.
 
-* Força: Quanto mais distante você clicar da bola branca, mais forte será a tacada.
+* **Força:** Quanto mais distante você clicar da bola branca, mais forte será a tacada.
 
-* Tacada: Pressione "Enter" para executar a tacada com a força determinada pela distância do clique.
+* **Tacada:** Pressione "Enter" para executar a tacada com a força determinada pela distância do clique.
