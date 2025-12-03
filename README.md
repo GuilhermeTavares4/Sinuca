@@ -19,3 +19,8 @@ O objetivo do jogo é encaçapar as bolas coloridas ou numeradas com a bola bran
 * **Força:** Quanto mais distante você clicar da bola branca, mais forte será a tacada.
 
 * **Tacada:** Pressione "Enter" para executar a tacada com a força determinada pela distância do clique.
+
+```bash
+# Dentro do diretório root
+python3 sinuca.py
+```
