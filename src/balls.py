@@ -159,7 +159,7 @@ def spawn_cue_ball(spawn_x, spawn_y, radius, win):
     return Ball(cue_ball, None, None, 'cue_ball')
 
 
-def BallCollision(ball1, ball2, first_ball_hit, first_ball_pocketed, win):
+def BallCollision(ball1, ball2, first_ball_pocketed):
     ball1_center = ball1.element.getCenter()
     ball2_center = ball2.element.getCenter()
     dx = ball1_center.getX() - ball2_center.getX()
@@ -167,10 +167,6 @@ def BallCollision(ball1, ball2, first_ball_hit, first_ball_pocketed, win):
     distance = math.sqrt(dx * dx  + dy * dy)
     #verifica se as bolas estão colidindo
     if distance < (ball1.element.getRadius() + ball2.element.getRadius()):
-
-        #define qual foi a primeira bola que o jogador atingiu em sua jogada
-        if first_ball_hit == "":
-            first_ball_hit = ball2.ball_type
 
         nx = dx / distance
         ny = dy / distance
@@ -198,6 +194,11 @@ def BallCollision(ball1, ball2, first_ball_hit, first_ball_pocketed, win):
         
         ball2.setVelocity_x((ball2.getVelocity_x() + dot_product * nx) * 0.9)
         ball2.setVelocity_y((ball2.getVelocity_y() + dot_product * ny) * 0.9)
+
+        # retorna a bola que a branca acertou
+        if ball1.ball_type == "cue_ball":
+            return ball2
+    return None
 
 
 def Ball_Wall_Collision(ball, wall, win):
@@ -253,8 +254,9 @@ def Ball_Hole_Collision(table_balls, first_ball_pocketed, ball, hole, player, te
         table_balls.remove(ball)
         ball.undraw()
 
-        if first_ball_pocketed != "high_ball" and first_ball_pocketed != "low_ball":
-            first_ball_pocketed = ball.ball_type
+        return ball
+    
+    return None
 
 
 #verifica se ainda tem alguma bola se mexendo na mesa
