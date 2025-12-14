@@ -17,6 +17,9 @@ class Ball:
         self.velocity_y = 0
         self.drag = 1.1
 
+    def __repr__(self):
+        return self.number.getText()
+
     def move(self):
         self.element.move(self.velocity_x, self.velocity_y)
         if self.text_circle != None: # and self.number != None  // No caso da bola branca
@@ -27,7 +30,6 @@ class Ball:
             text_pos = self.number.getAnchor()
             self.text_circle.move(X - text_circle_pos.getX(), Y - text_circle_pos.getY())
             self.number.move(X - text_pos.getX(), Y - text_pos.getY())
-            
 
         if abs(self.velocity_x) <= 0.15 and abs(self.velocity_y) <= 0.15:
             self.velocity_x = 0
@@ -264,4 +266,23 @@ def balls_still_moving(table_balls):
     for ball in table_balls:
         if ball.getVelocity_x() != 0 or ball.getVelocity_y() != 0:
             return True            
+    return False
+
+
+def get_lowest_ball(table_balls, team):
+        team_balls = list(filter(lambda ball: ball.ball_type == team.target_ball_type, table_balls))
+        if len(team_balls) > 0:
+            lowest_ball = min(team_balls, key = lambda ball: int(ball.number.getText()))
+            return lowest_ball
+        return None
+
+
+def get_team_balls(table_balls, team):
+        team_balls = list(filter(lambda ball: ball.ball_type == team.target_ball_type, table_balls))
+        return team_balls
+
+def check_if_ball_pocketed(pocketed_balls, ball_type):
+    for ball in pocketed_balls:
+        if ball.ball_type == ball_type:
+            return True
     return False
