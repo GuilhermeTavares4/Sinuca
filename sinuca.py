@@ -16,6 +16,7 @@ def play_music():
 
 window_size = 1000
 win = gf.GraphWin('bar do patrick', window_size * 1.2, window_size)
+
 # play_music()
 pocketed_balls = []
 ball_radius = 15
@@ -91,7 +92,10 @@ while True:
     use_cue(cue, table_balls, win) # aguarda até que o jogador mova o taco
 
 # loop em que ocorre a física
+
     while balls_still_moving(table_balls):
+        gf.update(60)
+
         for ball in table_balls:
             ball.move()
         for i, ball1 in enumerate(table_balls):
@@ -116,8 +120,6 @@ while True:
                     # define o primeiro tipo de bola que foi encaçapado no jogo (maior ou menor)
                     if first_ball_pocketed_type == "" and (current_pocketed_ball.ball_type == "high_ball" or current_pocketed_ball.ball_type == "low_ball"):
                         first_ball_pocketed_type = current_pocketed_ball.ball_type
-
-        time.sleep(0.001)
     
     time.sleep(0.5)
 
@@ -138,7 +140,6 @@ while True:
         elif first_ball_pocketed_type == "high_ball":
             team.target_ball_type = "high_ball"
             other_team.target_ball_type = "low_ball"
-
 
     # aplica as regras gerais do jogo caso alguma bola tenha sido encaçapada
     if len(current_pocketed_balls) > 0:
@@ -194,8 +195,6 @@ while True:
         if len(get_team_balls(table_balls, other_team)) == 0:
             print(f'{other_team.name} won!')
             break
-
-      
     
     if change_player:
         turn += 1
@@ -209,7 +208,3 @@ while True:
                 current_player = teams[1].nextToPlay()
             else:
                 current_player = teams[0].nextToPlay()
-
-
-    
-# win.close()
