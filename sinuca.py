@@ -63,6 +63,8 @@ else:
 
 turn = 1
 
+winner = ""
+
 while not game_ended:
 
     if current_player in teams[0].players:
@@ -158,12 +160,13 @@ while not game_ended:
             # encaçapar a bola 8 só acaba o jogo se já tiver sido encaçapada alguma outra bola
             if team.target_ball_type != "":
                 if len(get_team_balls(table_balls, team)) > 0:
-                    print(f'{other_team.name} won!')
+                    winner = other_team.name
                 else:
                     if not cue_ball_pocketed:
-                        print(f'{team.name} won!')
+                        winner = team.name
                     else:
-                        print(f'{other_team.name} won!')
+                        winner = other_team.name
+                game_ended = True
                 break
         
         if cue_ball_pocketed: 
@@ -172,8 +175,9 @@ while not game_ended:
                 ball_to_pocket = get_lowest_ball(table_balls, other_team)
                 ball_to_pocket.undraw()
                 table_balls.remove(ball_to_pocket)
-            if len(get_team_balls(table_balls, other_team)) == 0 and check_if_ball_on_table(table_balls, '8_ball'):
-                other_team.target_ball_type = '8_ball'
+            if team.target_ball_type != "":
+                if len(get_team_balls(table_balls, other_team)) == 0 and check_if_ball_on_table(table_balls, '8_ball'):
+                    other_team.target_ball_type = '8_ball'
 
             # respawna a bola branca    
             table_balls.insert(0, spawn_cue_ball(525, 500, ball_radius, win))
@@ -202,7 +206,7 @@ while not game_ended:
         if team.target_ball_type != "":
             if len(get_team_balls(table_balls, team)) == 0:
                 if not check_if_ball_on_table(table_balls, '8_ball'):
-                    print(f'{team.name} won!')
+                    winner = team.name
                     game_ended = True
                     break
                 else:
@@ -221,3 +225,7 @@ while not game_ended:
                 current_player = teams[1].nextToPlay()
             else:
                 current_player = teams[0].nextToPlay()
+
+current_player_text.setText(f"O time {winner} venceu! 😃😃😃")
+win.getMouse()
+win.close()
