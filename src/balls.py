@@ -68,8 +68,8 @@ class Ball:
 
 def BallScramble():
     positions = []
-    # numbers = [1, 2, 3, 4, 5, 6, 7, 9, 10, 11, 12, 13, 14, 15]
-    numbers = [1, 2, 3, 9, 10, 11] # apenas para testes
+    numbers = [1, 2, 3, 4, 5, 6, 7, 9, 10, 11, 12, 13, 14, 15]
+    # numbers = [1, 2, 3, 9, 10, 11] # apenas para testes
 
     chosen8 = random.randint(1, 9) # Sorteia a posição da bola 8 | 33.33%
 
@@ -88,8 +88,8 @@ def BallScramble():
 
 
 def generate_balls(whiteBallCoordX: int, triangleCoords: list, radius, win):
-    # colors = [[1, 9, "Yellow"], [2, 10, "Blue"], [3, 11, "Red"], [4, 12, "Purple"], [5, 13, "Orange"], [6, 14, "Green"], [7, 15, "Brown"], [8, "Black"]]
-    colors = [[1, 9, "Yellow"], [2, 10, "Blue"], [3, 11, "Red"], [8, "Black"]] # apenas para testes
+    colors = [[1, 9, "Yellow"], [2, 10, "Blue"], [3, 11, "Red"], [4, 12, "Purple"], [5, 13, "Orange"], [6, 14, "Green"], [7, 15, "Brown"], [8, "Black"]]
+    # colors = [[1, 9, "Yellow"], [2, 10, "Blue"], [3, 11, "Red"], [8, "Black"]] # apenas para testes
     triangleCoords.append(triangleCoords[1]) # Salvando o valor original de y
     balls_postions = BallScramble()
     table_balls = []
