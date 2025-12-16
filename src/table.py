@@ -83,17 +83,19 @@ class Cue:
         distance = math.sqrt(dx * dx + dy * dy)
         nx = dx / distance
         ny = dy / distance
-        velocity = distance / 10
-        if velocity > 23:
-            velocity = 23
+        cue_velocity = distance / 9
+        ball_velocity = distance / 10
+        if ball_velocity > 23:
+            ball_velocity = 23
+            cue_velocity = 23
         while distance > target.getRadius():
-            self.element.move(nx * velocity * -1, ny * velocity * -1)
-            dx += nx * velocity * -1
-            dy += ny * velocity * -1
+            self.element.move(nx * cue_velocity * -1, ny * cue_velocity * -1)
+            dx += nx * cue_velocity * -1
+            dy += ny * cue_velocity * -1
             distance = math.sqrt(dx * dx + dy * dy)
             time.sleep(0.01)
-        target.setVelocity_x(nx * velocity * -1)
-        target.setVelocity_y(ny * velocity * -1)
+        target.setVelocity_x(nx * ball_velocity * -1)
+        target.setVelocity_y(ny * ball_velocity * -1)
 
 
     def draw_assist_line(self, dx, dy, spawn_pos, win):
@@ -132,7 +134,7 @@ def use_cue(cue, table_balls, win):
 
 
 def generate_table(win):
-    x_start_pos = 270
+    x_start_pos = 420
     walls = []
     holes = []
     top_walls_height = 250

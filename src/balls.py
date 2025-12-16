@@ -15,7 +15,7 @@ class Ball:
         self.ball_type = ball_type
         self.velocity_x = 0
         self.velocity_y = 0
-        self.drag = 1.1
+        self.drag = 0.7
 
     def __repr__(self):
         return self.number.getText()
@@ -35,8 +35,8 @@ class Ball:
             self.velocity_x = 0
             self.velocity_y = 0
 
-        self.velocity_x -= self.velocity_x * self.drag * 0.01
-        self.velocity_y -= self.velocity_y * self.drag * 0.01
+        self.velocity_x -= self.velocity_x * self.drag * 0.016
+        self.velocity_y -= self.velocity_y * self.drag * 0.016
 
     def getX(self):
         return self.element.getCenter().getX()
@@ -68,7 +68,8 @@ class Ball:
 
 def BallScramble():
     positions = []
-    numbers = [1, 2, 3, 4, 5, 6, 7, 9, 10, 11, 12, 13, 14, 15]
+    # numbers = [1, 2, 3, 4, 5, 6, 7, 9, 10, 11, 12, 13, 14, 15]
+    numbers = [1, 2, 3, 9, 10, 11] # apenas para testes
 
     chosen8 = random.randint(1, 9) # Sorteia a posição da bola 8 | 33.33%
 
@@ -87,7 +88,8 @@ def BallScramble():
 
 
 def generate_balls(whiteBallCoordX: int, triangleCoords: list, radius, win):
-    colors = [[1, 9, "Yellow"], [2, 10, "Blue"], [3, 11, "Red"], [4, 12, "Purple"], [5, 13, "Orange"], [6, 14, "Green"], [7, 15, "Brown"], [8, "Black"]]
+    # colors = [[1, 9, "Yellow"], [2, 10, "Blue"], [3, 11, "Red"], [4, 12, "Purple"], [5, 13, "Orange"], [6, 14, "Green"], [7, 15, "Brown"], [8, "Black"]]
+    colors = [[1, 9, "Yellow"], [2, 10, "Blue"], [3, 11, "Red"], [8, "Black"]] # apenas para testes
     triangleCoords.append(triangleCoords[1]) # Salvando o valor original de y
     balls_postions = BallScramble()
     table_balls = []
@@ -161,7 +163,7 @@ def spawn_cue_ball(spawn_x, spawn_y, radius, win):
     return Ball(cue_ball, None, None, 'cue_ball')
 
 
-def BallCollision(ball1, ball2, first_ball_pocketed):
+def BallCollision(ball1, ball2):
     ball1_center = ball1.element.getCenter()
     ball2_center = ball2.element.getCenter()
     dx = ball1_center.getX() - ball2_center.getX()
@@ -191,11 +193,11 @@ def BallCollision(ball1, ball2, first_ball_pocketed):
 
         dot_product = (rel_vx * nx) + (rel_vy * ny)
 
-        ball1.setVelocity_x((ball1.getVelocity_x() - dot_product * nx) * 0.9)
-        ball1.setVelocity_y((ball1.getVelocity_y() - dot_product * ny) * 0.9)        
+        ball1.setVelocity_x((ball1.getVelocity_x() - dot_product * nx) * 0.95)
+        ball1.setVelocity_y((ball1.getVelocity_y() - dot_product * ny) * 0.95)        
         
-        ball2.setVelocity_x((ball2.getVelocity_x() + dot_product * nx) * 0.9)
-        ball2.setVelocity_y((ball2.getVelocity_y() + dot_product * ny) * 0.9)
+        ball2.setVelocity_x((ball2.getVelocity_x() + dot_product * nx) * 0.95)
+        ball2.setVelocity_y((ball2.getVelocity_y() + dot_product * ny) * 0.95)
 
         # retorna a bola que a branca acertou
         if ball1.ball_type == "cue_ball":
@@ -203,7 +205,7 @@ def BallCollision(ball1, ball2, first_ball_pocketed):
     return None
 
 
-def Ball_Wall_Collision(ball, wall, win):
+def Ball_Wall_Collision(ball, wall):
     ball_center = ball.element.getCenter()
     ball_x = ball_center.getX()
     ball_y = ball_center.getY()
@@ -236,7 +238,7 @@ def Ball_Wall_Collision(ball, wall, win):
             ball.setVelocity_y(ball.getVelocity_y() * -0.9)
         
     
-def Ball_Hole_Collision(table_balls, first_ball_pocketed, ball, hole, player, teams, win):
+def Ball_Hole_Collision(table_balls, ball, hole, player, teams):
     ball_center = ball.element.getCenter()
     hole_center = hole.element.getCenter()
     dx = ball_center.getX() - hole_center.getX()
@@ -281,8 +283,16 @@ def get_team_balls(table_balls, team):
         team_balls = list(filter(lambda ball: ball.ball_type == team.target_ball_type, table_balls))
         return team_balls
 
+
 def check_if_ball_pocketed(pocketed_balls, ball_type):
     for ball in pocketed_balls:
+        if ball.ball_type == ball_type:
+            return True
+    return False
+
+
+def check_if_ball_on_table(table_balls, ball_type):
+    for ball in table_balls:
         if ball.ball_type == ball_type:
             return True
     return False

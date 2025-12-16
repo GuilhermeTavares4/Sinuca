@@ -14,8 +14,8 @@ def play_music():
     play_sequence(playlist)
 
 
-window_size = 1000
-win = gf.GraphWin('bar do patrick', window_size * 1.2, window_size)
+window_size = 1500
+win = gf.GraphWin('bar do patrick', window_size, window_size * 2 / 3)
 
 # play_music()
 pocketed_balls = []
@@ -25,13 +25,13 @@ cue = Cue(cue_element)
 
 walls, holes = generate_table(win)
 
-table_balls = generate_balls(350, [700, 500], ball_radius, win)
+table_balls = generate_balls(525, [850, 500], ball_radius, win)
 
 
 #inputs para os nomes dos times e dos jogadores
-input_label = gf.Text(gf.Point(600, 100), '')
+input_label = gf.Text(gf.Point(window_size / 2, 100), '')
 input_label.draw(win)
-nome_input = gf.Entry(gf.Point(600, 150), 10)
+nome_input = gf.Entry(gf.Point(window_size / 2, 150), 10)
 nome_input.setFill("white")
 nome_input.setSize(25)
 nome_input.draw(win)
@@ -44,11 +44,13 @@ teams.append(generate_team("segundo", input_label, nome_input, win))
 input_label.undraw()
 nome_input.undraw()
 
-current_player_text = gf.Text(gf.Point(600, 160), "")
+current_player_text = gf.Text(gf.Point(window_size / 2, 160), "")
 current_player_text.setSize(14)
 current_player_text.draw(win)
 
 first_ball_pocketed_type = "" # vai definir qual tipo de bola cada time deve encaçapar
+
+game_ended = False
 
 ##################
 ### Sorteio para ver qual time começa
@@ -61,7 +63,7 @@ else:
 
 turn = 1
 
-while True:
+while not game_ended:
 
     if current_player in teams[0].players:
         team = teams[0]
@@ -75,8 +77,10 @@ while True:
     if team.target_ball_type != "":
         if team.target_ball_type == "low_ball":
             display_text += "\nVocê deve encaçapar as menores."
-        else:
+        elif team.target_ball_type == "high_ball":
             display_text += "\nVocê deve encaçapar as maiores."
+        else:
+            display_text += "\nVocê deve encaçapar a bola 8."
     else:
         display_text += "\nVocê pode encaçapar qualquer bola!"
 
@@ -88,6 +92,7 @@ while True:
     current_pocketed_balls = [] # bolas encaçapadas durante uma tacada
 
     change_player = True # vai definir se o jogador terá que passar o taco para outra pessoa ou se ele deverá jogar de novo
+    can_play_again = True # vira falso caso o jogador bata numa bola do outro time primeiro, mesmo que encaçape uma bola do próprio time
 
     use_cue(cue, table_balls, win) # aguarda até que o jogador mova o taco
 
@@ -98,23 +103,24 @@ while True:
 
         for ball in table_balls:
             ball.move()
+
+        for wall in walls:
+            for ball in table_balls:
+                Ball_Wall_Collision(ball, wall)
+
         for i, ball1 in enumerate(table_balls):
             if (i + 1 == len(table_balls)):
                 break
             for j, ball2 in enumerate(table_balls[i + 1:]):
-                current_ball_hit = BallCollision(ball1, ball2, first_ball_pocketed_type)
+                current_ball_hit = BallCollision(ball1, ball2)
                 
                 # atribui a primeira bola que foi acertada na rodada à variável first_ball_type
                 if current_ball_hit and first_ball_type == "":
                     first_ball_type = current_ball_hit.ball_type
             
-        for wall in walls:
-            for ball in table_balls:
-                Ball_Wall_Collision(ball, wall, win)
-
         for hole in holes:
             for ball in table_balls:
-                current_pocketed_ball = Ball_Hole_Collision(table_balls, first_ball_pocketed_type, ball, hole, current_player, teams, win)
+                current_pocketed_ball = Ball_Hole_Collision(table_balls, ball, hole, current_player, teams)
                 if current_pocketed_ball:
                     current_pocketed_balls.append(current_pocketed_ball)
                     # define o primeiro tipo de bola que foi encaçapado no jogo (maior ou menor)
@@ -125,11 +131,13 @@ while True:
 
     # verifica se o jogador não acertou uma bola correspondente ao seu time 
     if first_ball_type != team.target_ball_type and team.target_ball_type != "":
-
+        can_play_again = False
         if len(get_team_balls(table_balls, other_team)) > 0:
             ball_to_pocket = get_lowest_ball(table_balls, other_team)
             ball_to_pocket.undraw()
             table_balls.remove(ball_to_pocket)
+        if len(get_team_balls(table_balls, other_team)) == 0 and check_if_ball_on_table(table_balls, '8_ball'):
+            other_team.target_ball_type = '8_ball'
 
     # define qual tipo de bola cada time deve encaçapar. Importante que aconteça depois da verificação da jogada ^
     if team.target_ball_type == "":
@@ -164,37 +172,42 @@ while True:
                 ball_to_pocket = get_lowest_ball(table_balls, other_team)
                 ball_to_pocket.undraw()
                 table_balls.remove(ball_to_pocket)
+            if len(get_team_balls(table_balls, other_team)) == 0 and check_if_ball_on_table(table_balls, '8_ball'):
+                other_team.target_ball_type = '8_ball'
 
             # respawna a bola branca    
-            table_balls.insert(0, spawn_cue_ball(350, 500, ball_radius, win))
+            table_balls.insert(0, spawn_cue_ball(525, 500, ball_radius, win))
 
             # move a bola caso ela spawne em cima de outra (nao é o melhor jeito, interessante mexer nisso depois)
             for i, ball1 in enumerate(table_balls):
                 if (i + 1 == len(table_balls)):
                     break
                 for j, ball2 in enumerate(table_balls[i + 1:]):
-                    BallCollision(ball1, ball2, first_ball_pocketed_type)
+                    BallCollision(ball1, ball2)
         
             change_player = True
 
         else:
             if team.target_ball_type != "":
                 if check_if_ball_pocketed(current_pocketed_balls, team.target_ball_type) and not check_if_ball_pocketed(current_pocketed_balls, other_team.target_ball_type):
-                    change_player = False
+                    if can_play_again:
+                        change_player = False
                 else:
                     change_player = True
 
     print(f'{get_team_balls(table_balls, team)}, {len(get_team_balls(table_balls, team))}\n')        
     print(f'{get_team_balls(table_balls, other_team)}, {len(get_team_balls(table_balls, other_team))}\n\n')
     
-    # caso a bola preta tenha sido encaçapada de primeira...
-    if team.target_ball_type != "":
-        if len(get_team_balls(table_balls, team)) == 0:
-            print(f'{team.name} won!')
-            break
-        if len(get_team_balls(table_balls, other_team)) == 0:
-            print(f'{other_team.name} won!')
-            break
+    for team in teams:
+        if team.target_ball_type != "":
+            if len(get_team_balls(table_balls, team)) == 0:
+                if not check_if_ball_on_table(table_balls, '8_ball'):
+                    print(f'{team.name} won!')
+                    game_ended = True
+                    break
+                else:
+                    team.target_ball_type = '8_ball'
+
     
     if change_player:
         turn += 1
